@@ -1,0 +1,44 @@
+# ---- Node / Expo (mobile) ----
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+*.tsbuildinfo
+.metro-health-check*
+mobile/ios/
+mobile/android/
+
+# ---- Python (backend) ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Env / secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- Editor / OS ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---- Local data / artifacts ----
+*.log
+backend/storage/
+tmp/
+scratch/
+
+# ---- OMR bake-off scratch (venv, ML models, test images/outputs) ----
+omr-eval/
+
+# ---- Downloaded binaries / build outputs ----
+tools/
+*.apk
+*.aab

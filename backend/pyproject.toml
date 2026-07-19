@@ -1,0 +1,24 @@
+[project]
+name = "sheet-music-trainer-omr"
+version = "0.1.0"
+description = "OMR backend for Sheet Music Trainer (homr → MusicXML)"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",
+    "pillow>=10.0",
+    "homr>=0.7.0",
+    "music21>=9.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "httpx>=0.27",
+    "ruff>=0.5",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

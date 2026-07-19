@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sheet Music Trainer — Preview</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #0f1115; color: #f5f7fa; }
+  header { padding: 16px 20px; border-bottom: 1px solid #2a3140; }
+  h1 { font-size: 18px; margin: 0; }
+  p.sub { margin: 4px 0 0; color: #8a93a3; font-size: 13px; }
+  #controls { display: flex; gap: 10px; align-items: center; padding: 14px 20px; flex-wrap: wrap; }
+  button, select {
+    background: #1a1e26; color: #f5f7fa; border: 1px solid #2a3140;
+    border-radius: 10px; padding: 10px 18px; font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  #play { background: #7aa2ff; color: #0f1115; border-color: #7aa2ff; }
+  #status { color: #8a93a3; font-size: 13px; margin-left: auto; }
+  #osmd { background: #fff; margin: 0 20px 24px; border-radius: 10px; padding: 8px; min-height: 200px; }
+  .err { color: #ff6b81; padding: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sheet Music Trainer — render &amp; playback preview</h1>
+  <p class="sub">Same OSMD + WebAudio engine the app uses, running standalone. Sample: “Ode to Joy”.</p>
+</header>
+<div id="controls">
+  <button id="play" disabled>Play</button>
+  <label>Tempo
+    <select id="rate">
+      <option value="0.5">0.5×</option>
+      <option value="0.75">0.75×</option>
+      <option value="1" selected>1×</option>
+    </select>
+  </label>
+  <span id="status">Loading notation engine…</span>
+</div>
+<div id="osmd"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.7/build/opensheetmusicdisplay.min.js"></script>
+<script>
+const MUSICXML = `<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <part-list><score-part id="P1"><part-name>Melody</part-name></score-part></part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes><divisions>2</divisions><key><fifths>0</fifths></key>
+        <time><beats>4</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>
+      <sound tempo="100"/>
+      <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note><pitch><step>F</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+    </measure>
+    <measure number="2">
+      <note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note><pitch><step>F</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+    </measure>
+    <measure number="3">
+      <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+      <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><type>quarter</type></note>
+    </measure>
+    <measure number="4">
+      <note><pitch><step>E</step><octave>4</octave></pitch><duration>3</duration><type>quarter</type><dot/></note>
+      <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration><type>eighth</type></note>
+      <note><pitch><step>D</step><octave>4</octave></pitch><duration>4</duration><type>half</type></note>
+    </measure>
+  </part>
+</score-partwise>`;
+
+const SEMI = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
+const statusEl = document.getElementById("status");
+const playBtn = document.getElementById("play");
+const rateSel = document.getElementById("rate");
+
+// Parse MusicXML -> monophonic timeline (mirrors the app's parseMusicXML).
+function parseTimeline(xml) {
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  let divisions = 1, tempo = 100, elapsed = 0;
+  const notes = [];
+  doc.querySelectorAll("part:first-of-type > measure").forEach((m) => {
+    const d = m.querySelector("attributes > divisions");
+    if (d) divisions = +d.textContent;
+    const snd = m.querySelector("sound[tempo]");
+    if (snd) tempo = +snd.getAttribute("tempo");
+    m.querySelectorAll(":scope > note").forEach((n) => {
+      if (n.querySelector("grace") || n.querySelector("chord")) return;
+      const durDiv = +(n.querySelector("duration")?.textContent || 0);
+      const durSec = (durDiv / divisions) * (60 / tempo);
+      let midi = null;
+      const p = n.querySelector("pitch");
+      if (p && !n.querySelector("rest")) {
+        const step = p.querySelector("step").textContent;
+        const oct = +p.querySelector("octave").textContent;
+        const alt = +(p.querySelector("alter")?.textContent || 0);
+        midi = 12 * (oct + 1) + SEMI[step] + alt;
+      }
+      notes.push({ index: notes.length, midi, startSec: elapsed, durSec });
+      elapsed += durSec;
+    });
+  });
+  return { notes, totalSec: elapsed };
+}
+
+let osmd, timeline, audio, playing = false, raf = null;
+function ac() { if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)(); return audio; }
+function freq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+
+function playNote(midi, at, dur) {
+  if (midi == null) return;
+  const ctx = ac(), osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.type = "triangle"; osc.frequency.value = freq(midi);
+  const end = at + Math.max(0.05, dur * 0.95);
+  g.gain.setValueAtTime(0.0001, at);
+  g.gain.exponentialRampToValueAtTime(0.2, at + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, end);
+  osc.connect(g).connect(ctx.destination); osc.start(at); osc.stop(end + 0.02);
+}
+function cursorTo(i) { osmd.cursor.reset(); osmd.cursor.show(); for (let k = 0; k < i; k++) osmd.cursor.next(); }
+
+function play() {
+  if (playing || !timeline) return;
+  const rate = +rateSel.value;
+  const ctx = ac(); if (ctx.resume) ctx.resume();
+  playing = true; playBtn.textContent = "Pause";
+  const startAt = ctx.currentTime + 0.06;
+  timeline.notes.forEach((ev) => playNote(ev.midi, startAt + ev.startSec / rate, ev.durSec / rate));
+  let last = -1;
+  (function tick() {
+    if (!playing) return;
+    const t = (ctx.currentTime - startAt) * rate;
+    let idx = 0;
+    while (idx + 1 < timeline.notes.length && timeline.notes[idx + 1].startSec <= t) idx++;
+    if (idx !== last) { cursorTo(idx); last = idx; }
+    if (t >= timeline.totalSec) { stop(); return; }
+    raf = requestAnimationFrame(tick);
+  })();
+}
+function stop() { playing = false; playBtn.textContent = "Play"; if (raf) cancelAnimationFrame(raf); }
+
+playBtn.addEventListener("click", () => (playing ? stop() : play()));
+
+window.addEventListener("load", async () => {
+  try {
+    timeline = parseTimeline(MUSICXML);
+    osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmd", { autoResize: true, drawingParameters: "compacttight" });
+    await osmd.load(MUSICXML);
+    osmd.render(); osmd.cursor.show(); osmd.cursor.reset();
+    playBtn.disabled = false;
+    statusEl.textContent = timeline.notes.length + " notes · press Play";
+  } catch (e) {
+    document.getElementById("osmd").innerHTML = '<div class="err">Failed to load: ' + e + '</div>';
+    statusEl.textContent = "Error";
+  }
+});
+</script>
+</body>
+</html>

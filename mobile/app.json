@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Sheet Music Trainer",
+    "slug": "sheet-music-trainer",
+    "scheme": "sheetmusictrainer",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sheetmusictrainer.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Take photos of sheet music to convert it into digital notation.",
+        "NSMicrophoneUsageDescription": "Listen while you play to give real-time performance feedback."
+      }
+    },
+    "android": {
+      "package": "com.sheetmusictrainer.app",
+      "permissions": ["CAMERA", "RECORD_AUDIO"]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Take photos of sheet music to convert it into digital notation."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
