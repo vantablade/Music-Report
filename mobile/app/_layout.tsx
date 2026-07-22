@@ -1,3 +1,11 @@
+import {
+  HankenGrotesk_400Regular,
+  HankenGrotesk_500Medium,
+  HankenGrotesk_600SemiBold,
+  HankenGrotesk_700Bold,
+  HankenGrotesk_800ExtraBold,
+  useFonts,
+} from "@expo-google-fonts/hanken-grotesk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -7,6 +15,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider, useAuth } from "@/auth/AuthProvider";
 import { env } from "@/config/env";
+import { colors } from "@/theme";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,33 +37,44 @@ function RootNavigator() {
     else if (authed && onSignIn) router.replace("/");
   }, [authed, loading, segments, router]);
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#0f1115" }}>
-        <ActivityIndicator size="large" color="#7aa2ff" />
-      </View>
-    );
-  }
+  if (loading) return <Splash />;
 
+  // Stack screens use their own lightweight headers (see StackHeader).
   return (
-    <Stack screenOptions={{ headerTitleStyle: { fontWeight: "600" } }}>
-      <Stack.Screen name="index" options={{ title: "Sheet Music Trainer" }} />
-      <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-      <Stack.Screen name="scan" options={{ title: "Scan sheet music" }} />
-      <Stack.Screen name="library" options={{ title: "My library" }} />
-      <Stack.Screen name="score/[id]" options={{ title: "Score" }} />
-      <Stack.Screen name="practice/[id]" options={{ title: "Practice" }} />
-      <Stack.Screen name="settings" options={{ title: "Settings" }} />
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="sign-in" />
+      <Stack.Screen name="scan" />
+      <Stack.Screen name="score/[id]" />
+      <Stack.Screen name="practice/[id]" />
     </Stack>
   );
 }
 
+function Splash() {
+  return (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.bg }}>
+      <ActivityIndicator size="large" color={colors.accent} />
+    </View>
+  );
+}
+
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    HankenGrotesk_400Regular,
+    HankenGrotesk_500Medium,
+    HankenGrotesk_600SemiBold,
+    HankenGrotesk_700Bold,
+    HankenGrotesk_800ExtraBold,
+  });
+
+  if (!fontsLoaded) return <Splash />;
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <SafeAreaProvider>
-          <StatusBar style="auto" />
+          <StatusBar style="dark" />
           <RootNavigator />
         </SafeAreaProvider>
       </AuthProvider>

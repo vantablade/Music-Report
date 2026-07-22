@@ -9,6 +9,7 @@ import { WebView, type WebViewMessageEvent } from "react-native-webview";
 
 import { buildOsmdHtml } from "@/music/osmdHost";
 import { parseMusicXML, type ScoreTimeline } from "@/music/parseMusicXML";
+import { colors, font, radius } from "@/theme";
 
 interface Props {
   musicxml: string;
@@ -117,7 +118,7 @@ export function ScorePlayer({
         />
         {!ready && !error && (
           <View style={styles.loading}>
-            <ActivityIndicator size="large" color="#7aa2ff" />
+            <ActivityIndicator size="large" color={colors.accent} />
             <Text style={styles.loadingText}>Rendering score…</Text>
           </View>
         )}
@@ -130,13 +131,22 @@ export function ScorePlayer({
 
       {!isFollow && (
         <View style={styles.controls}>
-          <Pressable style={[styles.btn, !ready && styles.btnDisabled]} onPress={togglePlay}>
-            <Text style={styles.btnText}>{playing ? "Pause" : "Play"}</Text>
+          <Pressable
+            onPress={togglePlay}
+            disabled={!ready}
+            style={({ pressed }) => [styles.playBtn, pressed && { opacity: 0.85 }, !ready && { opacity: 0.4 }]}
+          >
+            <Text style={styles.playGlyph}>{playing ? "❚❚" : "▶"}</Text>
           </Pressable>
-          <Pressable style={[styles.btn, styles.btnSecondary]} onPress={cycleTempo}>
-            <Text style={styles.btnTextSecondary}>{TEMPO_STEPS[rateIdx]}×</Text>
+          <Pressable
+            onPress={cycleTempo}
+            style={({ pressed }) => [styles.tempoPill, pressed && { borderColor: colors.accent }]}
+          >
+            <Text style={styles.tempoLabel}>{TEMPO_STEPS[rateIdx]}×</Text>
           </Pressable>
-          <Text style={styles.meta}>{timeline.notes.length} notes · {timeline.tempoBpm} bpm</Text>
+          <Text style={styles.meta}>
+            {timeline.notes.length} notes · {timeline.tempoBpm} bpm
+          </Text>
         </View>
       )}
     </View>
@@ -145,7 +155,7 @@ export function ScorePlayer({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  webWrap: { flex: 1, backgroundColor: "#ffffff" },
+  webWrap: { flex: 1, backgroundColor: colors.surface },
   loading: {
     ...StyleSheet.absoluteFillObject,
     alignItems: "center",
@@ -153,19 +163,35 @@ const styles = StyleSheet.create({
     gap: 10,
     backgroundColor: "#ffffffee",
   },
-  loadingText: { color: "#5f6a7d", fontSize: 14 },
-  error: { color: "#b00020", fontSize: 14, padding: 24, textAlign: "center" },
+  loadingText: { fontFamily: font.regular, color: colors.muted, fontSize: 14 },
+  error: { fontFamily: font.regular, color: colors.wrong, fontSize: 14, padding: 24, textAlign: "center" },
   controls: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    padding: 16,
-    backgroundColor: "#0f1115",
+    gap: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    backgroundColor: colors.bg,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
-  btn: { backgroundColor: "#7aa2ff", paddingVertical: 12, paddingHorizontal: 24, borderRadius: 10 },
-  btnSecondary: { backgroundColor: "#1a1e26", borderWidth: 1, borderColor: "#2a3140" },
-  btnDisabled: { opacity: 0.4 },
-  btnText: { color: "#0f1115", fontWeight: "700", fontSize: 15 },
-  btnTextSecondary: { color: "#f5f7fa", fontWeight: "700", fontSize: 15 },
-  meta: { color: "#5f6a7d", fontSize: 12, marginLeft: "auto" },
+  playBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  playGlyph: { fontSize: 17, color: colors.onAccent },
+  tempoPill: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 11,
+    paddingHorizontal: 16,
+    borderRadius: radius.pill,
+  },
+  tempoLabel: { fontFamily: font.bold, fontSize: 14, color: colors.text },
+  meta: { fontFamily: font.regular, fontSize: 12.5, color: colors.muted, marginLeft: "auto" },
 });

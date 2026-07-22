@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;background:#efede5;font-family:"Hanken Grotesk",system-ui,sans-serif}a{color:#8a7500}a:hover{color:#6b5b00}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}</style></helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:18px;padding:40px 20px">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:30px;height:30px;border-radius:9px;background:#FFD60A;display:flex;align-items:center;justify-content:center;font-size:17px;color:#171712">♪</div>
+    <span style="font-size:16px;font-weight:800;letter-spacing:-0.02em;color:#171712">musical</span>
+    <span style="font-size:12px;color:#77766B">— interactive prototype · tap through the flows</span>
+  </div>
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ isDark }}" hint-size="410px,880px">
+    <div style="display:flex;flex-direction:column;height:100%;background:#FEFDF7;font-family:'Hanken Grotesk',system-ui,sans-serif;position:relative;overflow:hidden;padding-top:59px;box-sizing:border-box">
+
+      <sc-if value="{{ isSignin }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="Sign in" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:28px">
+          <div style="width:64px;height:64px;border-radius:18px;background:#FFD60A;display:flex;align-items:center;justify-content:center;font-size:34px;color:#171712;margin-bottom:10px">♪</div>
+          <div style="font-size:34px;font-weight:800;letter-spacing:-0.03em;color:#171712">musical</div>
+          <div style="font-size:15px;color:#77766B;margin-bottom:14px">{{ signinSub }}</div>
+          <input placeholder="Email" style="background:#fff;border:1px solid #EDEBDF;border-radius:12px;padding:15px;font-size:15px;font-family:inherit;color:#171712;outline:none"></input>
+          <input placeholder="Password" type="password" style="background:#fff;border:1px solid #EDEBDF;border-radius:12px;padding:15px;font-size:15px;font-family:inherit;color:#171712;outline:none"></input>
+          <button onClick="{{ signIn }}" style="background:#FFD60A;border:none;padding:16px 0;border-radius:999px;font:700 16px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer;margin-top:6px" style-hover="filter:brightness(0.96)">{{ signinCta }}</button>
+          <button onClick="{{ toggleMode }}" style="background:none;border:none;color:#8A7500;font:500 14px 'Hanken Grotesk',sans-serif;cursor:pointer;margin-top:8px">{{ signinSwitch }}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ inShell }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+
+          <sc-if value="{{ tabHome }}" hint-placeholder-val="{{ true }}">
+            <div data-screen-label="Home" style="flex:1;overflow-y:auto;padding:18px 20px 90px;display:flex;flex-direction:column;gap:20px">
+              <div style="display:flex;align-items:center;gap:8px;padding-top:4px">
+                <div style="width:26px;height:26px;border-radius:8px;background:#FFD60A;display:flex;align-items:center;justify-content:center;font-size:15px;color:#171712">♪</div>
+                <span style="font-size:19px;font-weight:800;letter-spacing:-0.02em;color:#171712">musical</span>
+              </div>
+              <div style="font-size:26px;font-weight:800;letter-spacing:-0.03em;color:#171712;line-height:1.15">Welcome back.<br>Ready to play?</div>
+              <div style="background:#fff;border:1px solid #EDEBDF;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px">
+                <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#77766B;text-transform:uppercase">Continue practicing</div>
+                <div style="display:flex;align-items:center;gap:14px">
+                  <div style="flex:1">
+                    <div style="font-size:17px;font-weight:700;color:#171712">Rode Étude No. 9</div>
+                    <div style="font-size:13px;color:#77766B;margin-top:2px">Last session · 86% accuracy</div>
+                  </div>
+                  <div style="width:52px;height:52px;border-radius:50%;background:conic-gradient(#FFD60A 0 86%,#F2F0E4 86% 100%);display:flex;align-items:center;justify-content:center">
+                    <div style="width:40px;height:40px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#171712">86%</div>
+                  </div>
+                </div>
+                <button onClick="{{ practiceFromHome }}" style="background:#FFD60A;border:none;padding:13px 0;border-radius:999px;font:700 15px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer" style-hover="filter:brightness(0.96)">Practice</button>
+              </div>
+              <div style="display:flex;gap:10px">
+                <button onClick="{{ openScan }}" style="flex:1;background:#fff;border:1px solid #EDEBDF;border-radius:14px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;font-family:inherit" style-hover="border-color:#FFD60A">
+                  <span style="width:22px;height:22px;border:2px solid #171712;border-radius:6px;display:flex;align-items:center;justify-content:center"><span style="width:7px;height:7px;border-radius:50%;background:#FFD60A;display:block"></span></span>
+                  <span style="font-size:13px;font-weight:600;color:#171712">Scan</span>
+                </button>
+                <button onClick="{{ importScore }}" style="flex:1;background:#fff;border:1px solid #EDEBDF;border-radius:14px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;font-family:inherit" style-hover="border-color:#FFD60A">
+                  <span style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#171712">↓</span>
+                  <span style="font-size:13px;font-weight:600;color:#171712">Import</span>
+                </button>
+                <button onClick="{{ loadSample }}" style="flex:1;background:#fff;border:1px solid #EDEBDF;border-radius:14px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;font-family:inherit" style-hover="border-color:#FFD60A">
+                  <span style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#171712">♫</span>
+                  <span style="font-size:13px;font-weight:600;color:#171712">Sample</span>
+                </button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between">
+                  <span style="font-size:15px;font-weight:700;color:#171712">Recent</span>
+                  <button onClick="{{ goLibrary }}" style="background:none;border:none;font:500 13px 'Hanken Grotesk',sans-serif;color:#8A7500;cursor:pointer">See library</button>
+                </div>
+                <sc-for list="{{ recent }}" as="s" hint-placeholder-count="2">
+                  <button onClick="{{ s.open }}" style="background:#fff;border:1px solid #EDEBDF;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left;width:100%;box-sizing:border-box" style-hover="border-color:#FFD60A">
+                    <span style="width:34px;height:34px;border-radius:10px;background:#FFF7CC;display:flex;align-items:center;justify-content:center;font-size:15px;color:#8A7500;flex:none">♪</span>
+                    <span style="flex:1;min-width:0">
+                      <span style="display:block;font-size:15px;font-weight:600;color:#171712">{{ s.title }}</span>
+                      <span style="display:block;font-size:12.5px;color:#77766B;margin-top:1px">{{ s.meta }}</span>
+                    </span>
+                    <span style="color:#C9C7B8;font-size:16px">›</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabLibrary }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Library" style="flex:1;overflow-y:auto;padding:18px 20px 90px;display:flex;flex-direction:column;gap:16px">
+              <div style="font-size:28px;font-weight:800;letter-spacing:-0.03em;color:#171712;padding-top:4px">Library</div>
+              <div style="display:flex;gap:8px">
+                <button onClick="{{ loadSample }}" style="background:#fff;border:1px solid #EDEBDF;padding:9px 14px;border-radius:999px;font:600 13px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer" style-hover="border-color:#FFD60A">Load sample</button>
+                <button onClick="{{ importScore }}" style="background:#fff;border:1px solid #EDEBDF;padding:9px 14px;border-radius:999px;font:600 13px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer" style-hover="border-color:#FFD60A">Import MusicXML</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ library }}" as="s" hint-placeholder-count="3">
+                  <button onClick="{{ s.open }}" style="background:#fff;border:1px solid #EDEBDF;border-radius:14px;padding:15px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left;width:100%;box-sizing:border-box" style-hover="border-color:#FFD60A">
+                    <span style="width:38px;height:38px;border-radius:11px;background:#FFF7CC;display:flex;align-items:center;justify-content:center;font-size:16px;color:#8A7500;flex:none">♪</span>
+                    <span style="flex:1;min-width:0">
+                      <span style="display:block;font-size:15.5px;font-weight:600;color:#171712">{{ s.title }}</span>
+                      <span style="display:block;font-size:12.5px;color:#77766B;margin-top:1px">{{ s.meta }}</span>
+                    </span>
+                    <span style="color:#C9C7B8;font-size:16px">›</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabSettings }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Settings" style="flex:1;overflow-y:auto;padding:18px 20px 90px;display:flex;flex-direction:column;gap:16px">
+              <div style="font-size:28px;font-weight:800;letter-spacing:-0.03em;color:#171712;padding-top:4px">Settings</div>
+              <div style="background:#fff;border:1px solid #EDEBDF;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px">
+                <div style="font-size:15px;font-weight:700;color:#171712">Backend URL</div>
+                <div style="font-size:13px;color:#77766B;line-height:1.45">The OMR server used for scanning. Paste your ngrok URL — it changes each session.</div>
+                <input placeholder="https://…" value="https://abcd-1234.ngrok-free.app" style="background:#FEFDF7;border:1px solid #EDEBDF;border-radius:12px;padding:13px;font-size:14px;font-family:inherit;color:#171712;outline:none"></input>
+                <div style="display:flex;gap:10px;margin-top:2px">
+                  <button onClick="{{ testConn }}" style="flex:1;background:#fff;border:1px solid #EDEBDF;padding:12px 0;border-radius:999px;font:600 14px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer" style-hover="border-color:#FFD60A">{{ testLabel }}</button>
+                  <button onClick="{{ saveConn }}" style="flex:1;background:#FFD60A;border:none;padding:12px 0;border-radius:999px;font:700 14px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer" style-hover="filter:brightness(0.96)">{{ saveLabel }}</button>
+                </div>
+                <sc-if value="{{ testRes }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:13.5px;color:#1FA55C;font-weight:600">✓ Connected — audiveris 5.3, queue empty</div>
+                </sc-if>
+              </div>
+              <button onClick="{{ signOut }}" style="background:none;border:none;font:600 14px 'Hanken Grotesk',sans-serif;color:#B4462F;cursor:pointer;padding:8px">Sign out</button>
+            </div>
+          </sc-if>
+
+          <button onClick="{{ openScan }}" style="position:absolute;right:20px;bottom:88px;width:58px;height:58px;border-radius:50%;background:#FFD60A;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(23,23,18,.18)" style-hover="filter:brightness(0.96)">
+            <span style="width:22px;height:22px;border:2.5px solid #171712;border-radius:7px;display:flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:#171712;display:block"></span></span>
+          </button>
+          <div style="display:flex;border-top:1px solid #EDEBDF;background:#FEFDF7;padding:10px 8px 6px">
+            <button onClick="{{ goHome }}" style="flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;padding:4px 0">
+              <span style="font-size:13.5px;font-weight:{{ homeW }};color:{{ homeC }}">Home</span>
+              <span style="width:5px;height:5px;border-radius:50%;background:{{ homeDot }}"></span>
+            </button>
+            <button onClick="{{ goLibrary }}" style="flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;padding:4px 0">
+              <span style="font-size:13.5px;font-weight:{{ libW }};color:{{ libC }}">Library</span>
+              <span style="width:5px;height:5px;border-radius:50%;background:{{ libDot }}"></span>
+            </button>
+            <button onClick="{{ goSettings }}" style="flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;padding:4px 0">
+              <span style="font-size:13.5px;font-weight:{{ setW }};color:{{ setC }}">Settings</span>
+              <span style="width:5px;height:5px;border-radius:50%;background:{{ setDot }}"></span>
+            </button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isScan }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Scan" style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:#171712;margin-top:-59px;padding-top:59px">
+          <div style="display:flex;align-items:center;gap:6px;padding:12px 16px">
+            <button onClick="{{ back }}" style="background:none;border:none;font:600 15px 'Hanken Grotesk',sans-serif;color:#FFD60A;cursor:pointer;padding:4px 4px 4px 0">‹ Back</button>
+            <span style="font-size:15px;font-weight:700;color:#FEFDF7">Scan sheet music</span>
+          </div>
+
+          <sc-if value="{{ scanCamera }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:1;position:relative;display:flex;flex-direction:column">
+              <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#1d1d16,#1d1d16 14px,#22221a 14px,#22221a 28px);display:flex;align-items:center;justify-content:center">
+                <span style="font:12px ui-monospace,Menlo,monospace;color:#77766B">camera preview</span>
+              </div>
+              <div style="position:absolute;inset:56px 28px 170px;border:2px solid rgba(255,214,10,.85);border-radius:14px;pointer-events:none"></div>
+              <div style="position:absolute;left:0;right:0;bottom:28px;display:flex;flex-direction:column;align-items:center;gap:18px">
+                <span style="font-size:13.5px;color:#FEFDF7;background:rgba(23,23,18,.72);padding:7px 12px;border-radius:999px">Fill the frame · hold steady · good light</span>
+                <button onClick="{{ capture }}" style="width:72px;height:72px;border-radius:50%;background:#FEFDF7;border:5px solid #FFD60A;cursor:pointer;box-sizing:border-box" style-hover="filter:brightness(0.94)"></button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ scanReview }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;display:flex;flex-direction:column">
+              <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:8px 24px">
+                <div style="width:100%;height:100%;background:repeating-linear-gradient(0deg,#f6f4ee,#f6f4ee 26px,#eae7de 26px,#eae7de 27px);border-radius:10px;display:flex;align-items:center;justify-content:center">
+                  <span style="font:12px ui-monospace,Menlo,monospace;color:#77766B;background:#fffc;padding:4px 8px">captured photo</span>
+                </div>
+              </div>
+              <div style="background:#FEFDF7;border-radius:20px 20px 0 0;padding:20px;display:flex;flex-direction:column;gap:10px">
+                <div style="font-size:13px;font-weight:600;color:#77766B">Name this score</div>
+                <input placeholder="e.g. Rode Étude No. 9" value="{{ scanTitle }}" onChange="{{ setScanTitle }}" style="background:#fff;border:1px solid #EDEBDF;border-radius:12px;padding:14px;font-size:15px;font-family:inherit;color:#171712;outline:none"></input>
+                <div style="display:flex;gap:10px;margin-top:4px">
+                  <button onClick="{{ retake }}" style="flex:1;background:#fff;border:1px solid #EDEBDF;padding:14px 0;border-radius:999px;font:600 15px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer" style-hover="border-color:#FFD60A">Retake</button>
+                  <button onClick="{{ startScan }}" style="flex:1;background:#FFD60A;border:none;padding:14px 0;border-radius:999px;font:700 15px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer" style-hover="filter:brightness(0.96)">Scan</button>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ scanProcessing }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px">
+              <div style="width:44px;height:44px;border-radius:50%;border:4px solid rgba(255,214,10,.25);border-top-color:#FFD60A;animation:spin 0.9s linear infinite"></div>
+              <div style="font-size:16px;font-weight:700;color:#FEFDF7">{{ procTitle }}</div>
+              <div style="font-size:13.5px;color:#9a9a8d;text-align:center;line-height:1.5">{{ procSub }}</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isScore }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Score" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid #EDEBDF">
+            <button onClick="{{ back }}" style="background:none;border:none;font:600 15px 'Hanken Grotesk',sans-serif;color:#8A7500;cursor:pointer;padding:4px 4px 4px 0">‹ Library</button>
+            <span style="font-size:15px;font-weight:700;color:#171712;flex:1;text-align:center;padding-right:52px">{{ scoreTitle }}</span>
+          </div>
+          <div style="flex:1;background:#fff;display:flex;align-items:center;justify-content:center;position:relative">
+            <div style="width:86%;height:72%;background:repeating-linear-gradient(0deg,#fff,#fff 8px,#dcd9cf 8px,#dcd9cf 9px,#fff 9px,#fff 42px);display:flex;align-items:center;justify-content:center;position:relative">
+              <span style="font:12px ui-monospace,Menlo,monospace;color:#77766B;background:#fffd;padding:4px 8px">OSMD score render</span>
+              <div style="position:absolute;top:0;bottom:0;width:3px;border-radius:2px;background:#FFD60A;left:{{ cursorPct }}"></div>
+            </div>
+          </div>
+          <div style="border-top:1px solid #EDEBDF;padding:14px 20px;display:flex;align-items:center;gap:10px;background:#FEFDF7">
+            <button onClick="{{ togglePlay }}" style="width:48px;height:48px;border-radius:50%;background:#FFD60A;border:none;cursor:pointer;font-size:17px;color:#171712;display:flex;align-items:center;justify-content:center" style-hover="filter:brightness(0.96)">{{ playGlyph }}</button>
+            <button onClick="{{ cycleTempo }}" style="background:#fff;border:1px solid #EDEBDF;padding:11px 16px;border-radius:999px;font:700 14px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer" style-hover="border-color:#FFD60A">{{ tempoLabel }}</button>
+            <span style="margin-left:auto;font-size:12.5px;color:#77766B">14 notes · 120 bpm</span>
+          </div>
+          <div style="padding:0 20px 18px;background:#FEFDF7">
+            <button onClick="{{ openPractice }}" style="width:100%;background:#171712;border:none;padding:16px 0;border-radius:999px;font:700 15.5px 'Hanken Grotesk',sans-serif;color:#FFD60A;cursor:pointer" style-hover="filter:brightness(1.15)">Practice with feedback</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPractice }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Practice" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid #EDEBDF">
+            <button onClick="{{ backToScore }}" style="background:none;border:none;font:600 15px 'Hanken Grotesk',sans-serif;color:#8A7500;cursor:pointer;padding:4px 4px 4px 0">‹ Score</button>
+            <span style="font-size:15px;font-weight:700;color:#171712;flex:1;text-align:center;padding-right:48px">Practice</span>
+          </div>
+          <div style="flex:1;background:#fff;display:flex;align-items:center;justify-content:center">
+            <div style="width:86%;height:72%;background:repeating-linear-gradient(0deg,#fff,#fff 8px,#dcd9cf 8px,#dcd9cf 9px,#fff 9px,#fff 42px);display:flex;align-items:center;justify-content:center;position:relative">
+              <span style="font:12px ui-monospace,Menlo,monospace;color:#77766B;background:#fffd;padding:4px 8px">score + follow cursor</span>
+              <div style="position:absolute;top:0;bottom:0;width:3px;border-radius:2px;left:{{ prCursorPct }};background:{{ statusColor }}"></div>
+            </div>
+          </div>
+          <div style="border-top:1px solid #EDEBDF;background:#FEFDF7;padding:18px 20px 20px;display:flex;flex-direction:column;gap:14px">
+
+            <sc-if value="{{ prCountin }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;font-size:52px;font-weight:800;color:#171712;animation:pulse 0.7s ease infinite">{{ countLabel }}</div>
+            </sc-if>
+
+            <sc-if value="{{ prMeter }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:9px">
+                <div style="font-size:34px;font-weight:800;color:#171712">{{ noteLabel }}</div>
+                <div style="width:100%;height:8px;background:#F2F0E4;border-radius:4px;position:relative">
+                  <div style="position:absolute;left:50%;width:2px;height:16px;background:#C9C7B8;top:-4px"></div>
+                  <div style="position:absolute;width:6px;height:16px;border-radius:3px;top:-4px;margin-left:-3px;left:{{ needlePct }};background:{{ statusColor }}"></div>
+                </div>
+                <div style="font-size:13.5px;color:#77766B">{{ centsLabel }}</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ prDone }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                <div style="font-size:46px;font-weight:800;color:#1FA55C">{{ accLabel }}</div>
+                <div style="font-size:15px;font-weight:600;color:#171712">{{ sumLine }}</div>
+                <div style="font-size:13px;color:#77766B;margin-bottom:8px">{{ sumBreakdown }}</div>
+                <button onClick="{{ startPractice }}" style="width:100%;background:#FFD60A;border:none;padding:15px 0;border-radius:999px;font:700 15.5px 'Hanken Grotesk',sans-serif;color:#171712;cursor:pointer" style-hover="filter:brightness(0.96)">Practice again</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ prShowBtn }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ prBtnAction }}" style="width:100%;border:none;padding:15px 0;border-radius:999px;font:700 15.5px 'Hanken Grotesk',sans-serif;cursor:pointer;background:{{ prBtnBg }};color:{{ prBtnColor }}">{{ prBtnLabel }}</button>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </x-import>
+  <div style="font-size:12px;color:#77766B;max-width:420px;text-align:center;line-height:1.5">Flows: sign in → home · scan (capture → name → OMR → score) · score playback · practice (count-in → live tuning meter → summary). Also see the <a href="Current UI.dc.html">current-UI recreation</a>.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 470, &quot;height&quot;: 980}, &quot;startSignedIn&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Prototype&quot;}, &quot;countIn&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 3, &quot;min&quot;: 0, &quot;max&quot;: 4, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Practice&quot;}, &quot;noteMs&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 850, &quot;min&quot;: 400, &quot;max&quot;: 2000, &quot;step&quot;: 50, &quot;unit&quot;: &quot;ms&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Practice&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: "signin", tab: "home", mode: "signIn",
+    scanStage: "camera", scanTitle: "", procStep: 0,
+    playing: false, rateIdx: 2, progress: 0,
+    ph: "idle", count: 3, idx: 0, cents: 0, status: null, results: [], sum: null,
+    testing: false, testRes: false, saved: false,
+    scoreTitle: "Rode Étude No. 9",
+    library: [
+      { id: 1, title: "Rode Étude No. 9", meta: "96 bpm · practiced Jul 19" },
+      { id: 2, title: "Sample — Twinkle Variation", meta: "120 bpm · added Jul 18" },
+    ],
+  };
+  NOTES = ["G4","G4","D5","D5","E5","E5","D5","C5","C5","B4","B4","A4","A4","G4"];
+  TEMPOS = [0.5, 0.75, 1];
+  timers = [];
+  componentDidMount() { if (this.props.startSignedIn) this.setState({ screen: "shell" }); }
+  componentWillUnmount() { this.clearTimers(); }
+  clearTimers() { this.timers.forEach((t) => { clearTimeout(t); clearInterval(t); }); this.timers = []; }
+  after(ms, fn) { this.timers.push(setTimeout(fn, ms)); }
+  every(ms, fn) { const h = setInterval(fn, ms); this.timers.push(h); return h; }
+  stopPlayback() { if (this.playIv) { clearInterval(this.playIv); this.playIv = null; } }
+  startPracticeRun() {
+    const ms = this.props.noteMs ?? 850;
+    this.runIv = this.every(ms, () => {
+      const { idx, results } = this.state;
+      if (idx >= this.NOTES.length) {
+        clearInterval(this.runIv);
+        const total = results.length;
+        const correct = results.filter((r) => r.s === "correct").length;
+        const wrong = results.filter((r) => r.s === "wrong").length;
+        const near = results.filter((r) => r.s === "near");
+        const sharp = near.filter((r) => r.c > 0).length;
+        const flat = near.length - sharp;
+        const mean = Math.round(results.reduce((a, r) => a + Math.abs(r.c), 0) / total);
+        this.setState({ ph: "done", status: null, sum: { acc: Math.round((correct / total) * 100), correct, total, mean, wrong, sharp, flat } });
+        return;
+      }
+      const roll = Math.random();
+      let s, c;
+      if (roll < 0.72) { s = "correct"; c = Math.round((Math.random() * 22 - 11)); }
+      else if (roll < 0.87) { s = "near"; c = Math.round((Math.random() * 20 + 16) * (Math.random() < 0.5 ? -1 : 1)); }
+      else { s = "wrong"; c = Math.round((Math.random() * 30 + 40) * (Math.random() < 0.5 ? -1 : 1)); }
+      this.setState({ idx: idx + 1, cents: c, status: s, results: [...results, { s, c }] });
+    });
+  }
+  renderVals() {
+    const st = this.state;
+    const open = (title) => () => this.setState({ screen: "score", scoreTitle: title, playing: false, progress: 0 });
+    const libraryUi = st.library.map((s) => ({ ...s, open: open(s.title) }));
+    const countIn = this.props.countIn ?? 3;
+    const tabStyle = (t) => st.tab === t ? { w: 700, c: "#171712", dot: "#FFD60A" } : { w: 500, c: "#77766B", dot: "transparent" };
+    const h = tabStyle("home"), l = tabStyle("library"), g = tabStyle("settings");
+    const statusColor = st.status === "correct" ? "#1FA55C" : st.status === "wrong" ? "#D9503F" : st.status === "near" ? "#77766B" : "#FFD60A";
+    return {
+      isDark: st.screen === "scan",
+      isSignin: st.screen === "signin", inShell: st.screen === "shell",
+      isScan: st.screen === "scan", isScore: st.screen === "score", isPractice: st.screen === "practice",
+      tabHome: st.tab === "home", tabLibrary: st.tab === "library", tabSettings: st.tab === "settings",
+      signinSub: st.mode === "signIn" ? "Sign in to your library" : "Create an account",
+      signinCta: st.mode === "signIn" ? "Sign in" : "Sign up",
+      signinSwitch: st.mode === "signIn" ? "Need an account? Sign up" : "Have an account? Sign in",
+      signIn: () => this.setState({ screen: "shell", tab: "home" }),
+      toggleMode: () => this.setState({ mode: st.mode === "signIn" ? "signUp" : "signIn" }),
+      signOut: () => this.setState({ screen: "signin" }),
+      goHome: () => this.setState({ tab: "home" }),
+      goLibrary: () => this.setState({ screen: "shell", tab: "library" }),
+      goSettings: () => this.setState({ tab: "settings" }),
+      homeW: h.w, homeC: h.c, homeDot: h.dot, libW: l.w, libC: l.c, libDot: l.dot, setW: g.w, setC: g.c, setDot: g.dot,
+      library: libraryUi, recent: libraryUi.slice(0, 2),
+      practiceFromHome: () => this.setState({ screen: "score", scoreTitle: "Rode Étude No. 9", playing: false, progress: 0 }),
+      loadSample: () => {
+        if (st.library.some((s) => s.title.startsWith("Sample"))) return;
+        this.setState({ library: [{ id: Date.now(), title: "Sample — Twinkle Variation", meta: "120 bpm · added today" }, ...st.library] });
+      },
+      importScore: () => this.setState({ library: [{ id: Date.now(), title: "Imported score", meta: "added today" }, ...st.library], tab: "library", screen: "shell" }),
+      openScan: () => this.setState({ screen: "scan", scanStage: "camera", scanTitle: "" }),
+      back: () => { this.clearTimers(); this.stopPlayback(); this.setState({ screen: "shell", playing: false }); },
+      capture: () => this.setState({ scanStage: "review" }),
+      retake: () => this.setState({ scanStage: "camera" }),
+      scanTitle: st.scanTitle,
+      setScanTitle: (e) => this.setState({ scanTitle: e.target.value }),
+      scanCamera: st.scanStage === "camera", scanReview: st.scanStage === "review", scanProcessing: st.scanStage === "processing",
+      startScan: () => {
+        this.setState({ scanStage: "processing", procStep: 0 });
+        this.after(1400, () => this.setState({ procStep: 1 }));
+        this.after(4200, () => {
+          const title = st.scanTitle.trim() || "Untitled score";
+          this.setState({
+            library: [{ id: Date.now(), title, meta: "scanned today" }, ...this.state.library],
+            screen: "score", scoreTitle: title, playing: false, progress: 0,
+          });
+        });
+      },
+      procTitle: st.procStep === 0 ? "Uploading image…" : "Reading the music…",
+      procSub: st.procStep === 0 ? "Sending your photo to the OMR server." : "Recognizing notes takes about 30–60 seconds.",
+      scoreTitle: st.scoreTitle,
+      playGlyph: st.playing ? "❚❚" : "▶",
+      tempoLabel: this.TEMPOS[st.rateIdx] + "×",
+      cursorPct: (6 + st.progress * 0.88) + "%",
+      togglePlay: () => {
+        if (st.playing) { this.stopPlayback(); this.setState({ playing: false }); return; }
+        this.setState({ playing: true });
+        this.playIv = this.every(80, () => {
+          const p = this.state.progress + (100 / (12000 / 80)) * this.TEMPOS[this.state.rateIdx];
+          if (p >= 100) { this.stopPlayback(); this.setState({ progress: 0, playing: false }); }
+          else this.setState({ progress: p });
+        });
+      },
+      cycleTempo: () => this.setState({ rateIdx: (st.rateIdx + 1) % this.TEMPOS.length }),
+      openPractice: () => { this.stopPlayback(); this.setState({ screen: "practice", ph: "idle", idx: 0, results: [], status: null, sum: null, playing: false }); },
+      backToScore: () => { this.clearTimers(); this.setState({ screen: "score", ph: "idle", idx: 0, results: [], status: null, playing: false, progress: 0 }); },
+      prCountin: st.ph === "countin",
+      prMeter: st.ph === "idle" || st.ph === "running",
+      prDone: st.ph === "done",
+      prShowBtn: st.ph !== "done",
+      countLabel: st.count === 0 ? "Go!" : String(st.count),
+      noteLabel: st.ph === "running" ? this.NOTES[Math.min(st.idx, this.NOTES.length - 1)] : "—",
+      needlePct: Math.max(0, Math.min(100, 50 + st.cents)) + "%",
+      centsLabel: st.ph === "running" ? (st.cents > 0 ? "+" : "") + st.cents + "¢" : "listening…",
+      statusColor,
+      prCursorPct: st.ph === "running" || st.ph === "done" ? (6 + (st.idx / this.NOTES.length) * 88) + "%" : "6%",
+      prBtnLabel: st.ph === "running" ? "Stop" : st.ph === "countin" ? "Cancel" : "Start practice",
+      prBtnBg: st.ph === "running" ? "#171712" : st.ph === "countin" ? "#fff" : "#FFD60A",
+      prBtnColor: st.ph === "running" ? "#FEFDF7" : "#171712",
+      prBtnAction: () => {
+        if (st.ph === "idle") return this.startPractice();
+        this.clearTimers();
+        this.setState({ ph: "idle", idx: 0, results: [], status: null, cents: 0 });
+      },
+      startPractice: () => this.startPractice(),
+      accLabel: st.sum ? st.sum.acc + "%" : "",
+      sumLine: st.sum ? `${st.sum.correct}/${st.sum.total} notes correct · avg ${st.sum.mean}¢ off` : "",
+      sumBreakdown: st.sum ? `wrong ${st.sum.wrong} · sharp ${st.sum.sharp} · flat ${st.sum.flat}` : "",
+      testing: st.testing, testRes: st.testRes,
+      testLabel: st.testing ? "Testing…" : "Test connection",
+      saveLabel: st.saved ? "Saved ✓" : "Save",
+      testConn: () => { this.setState({ testing: true, testRes: false }); this.after(1100, () => this.setState({ testing: false, testRes: true })); },
+      saveConn: () => { this.setState({ saved: true }); this.after(1500, () => this.setState({ saved: false })); },
+    };
+  }
+  startPractice() {
+    this.clearTimers();
+    const countIn = this.props.countIn ?? 3;
+    this.setState({ ph: "countin", count: countIn, idx: 0, results: [], sum: null, status: null, cents: 0 });
+    const cv = this.every(700, () => {
+      const c = this.state.count - 1;
+      if (c < 0) { clearInterval(cv); this.setState({ ph: "running" }); this.startPracticeRun(); }
+      else this.setState({ count: c });
+    });
+  }
+}
+</script>
+</body>
+</html>

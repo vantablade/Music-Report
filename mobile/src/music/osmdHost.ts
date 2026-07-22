@@ -152,6 +152,7 @@ export function buildOsmdHtml(): string {
               if (!window.opensheetmusicdisplay) { showError("Notation engine failed to load"); return; }
               osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmd", {
                 autoResize: true, drawingParameters: "compacttight", followCursor: true,
+                cursorsOptions: [{ type: 0, color: "#FFD60A", alpha: 0.45, follow: true }],
               });
             }
             render(msg.musicxml).catch(function (e) { showError("Could not render score: " + e); });
@@ -167,8 +168,8 @@ export function buildOsmdHtml(): string {
           case "feedback":
             // Phase 3 hook: tint the cursor by comparison result.
             if (osmd && osmd.cursor && osmd.cursor.cursorElement) {
-              var color = msg.status === "correct" ? "#5fd08a"
-                        : msg.status === "wrong" ? "#ff6b81" : "#ffcf5f";
+              var color = msg.status === "correct" ? "#1FA55C"
+                        : msg.status === "wrong" ? "#D9503F" : "#77766B";
               osmd.cursor.cursorElement.style.backgroundColor = color;
             }
             break;

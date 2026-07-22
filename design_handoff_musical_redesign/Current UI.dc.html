@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas"><style>body{margin:0;background:#e8e6e0;font-family:system-ui,-apple-system,sans-serif}a{color:#7aa2ff}a:hover{color:#5b86e8}</style></helmet>
+<section style="padding:40px 44px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 6px">
+    <span style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px">RECREATION</span>
+    <span style="font:600 14px system-ui;color:#1a1a1a">Sheet Music Trainer — current UI (from mobile/app/*.tsx)</span>
+  </div>
+  <p style="font:12px/1.5 system-ui;color:rgba(0,0,0,.55);margin:0 0 24px;max-width:720px">Faithful recreation of the existing Expo app: dark navy surfaces (#0f1115 / #1a1e26), periwinkle accent (#7aa2ff), green/amber/red feedback. Score render area is a placeholder for the OSMD WebView.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start">
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.5)">sign-in.tsx</span>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="410px,880px">
+        <div style="display:flex;flex-direction:column;gap:14px;justify-content:center;flex:1;height:100%;padding:59px 24px 24px;background:#0f1115;box-sizing:border-box">
+          <div style="color:#f5f7fa;font-size:26px;font-weight:700">Sheet Music Trainer</div>
+          <div style="color:#8a93a3;font-size:15px;margin-bottom:8px">Sign in to your library</div>
+          <div style="background:#1a1e26;border:1px solid #2a3140;border-radius:10px;padding:14px;color:#5f6a7d;font-size:15px">Email</div>
+          <div style="background:#1a1e26;border:1px solid #2a3140;border-radius:10px;padding:14px;color:#5f6a7d;font-size:15px">Password</div>
+          <div style="background:#7aa2ff;padding:15px 0;border-radius:12px;text-align:center;margin-top:4px;color:#0f1115;font-size:16px;font-weight:700">Sign in</div>
+          <div style="color:#7aa2ff;text-align:center;margin-top:12px;font-size:14px">Need an account? Sign up</div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.5)">index.tsx (Home)</span>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" title="Sheet Music Trainer" hint-size="410px,880px">
+        <div style="display:flex;flex-direction:column;gap:14px;justify-content:center;flex:1;height:100%;padding:24px;background:#0f1115;box-sizing:border-box">
+          <div style="color:#f5f7fa;font-size:28px;font-weight:700">Sheet Music Trainer</div>
+          <div style="color:#8a93a3;font-size:15px;margin-bottom:8px">Scan, render, and practice with feedback.</div>
+          <div style="background:#7aa2ff;padding:15px 0;border-radius:12px;text-align:center;color:#0f1115;font-size:16px;font-weight:700">My library</div>
+          <div style="background:#1a1e26;border:1px solid #2a3140;padding:15px 0;border-radius:12px;text-align:center;color:#f5f7fa;font-size:16px;font-weight:600">Scan sheet music</div>
+          <div style="padding:12px 0;margin-top:8px;text-align:center;color:#5f6a7d;font-size:14px">Settings</div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.5)">library.tsx</span>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" title="My library" hint-size="410px,880px">
+        <div style="display:flex;flex-direction:column;flex:1;height:100%;background:#0f1115;box-sizing:border-box">
+          <div style="display:flex;gap:8px;padding:16px 16px 8px;flex-wrap:wrap">
+            <div style="background:#1a1e26;border:1px solid #2a3140;padding:10px 14px;border-radius:10px;color:#f5f7fa;font-size:14px;font-weight:600">Load sample</div>
+            <div style="background:#1a1e26;border:1px solid #2a3140;padding:10px 14px;border-radius:10px;color:#f5f7fa;font-size:14px;font-weight:600">Import MusicXML</div>
+            <div style="background:#7aa2ff;border:1px solid #7aa2ff;padding:10px 14px;border-radius:10px;color:#0f1115;font-size:14px;font-weight:700">Scan</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;padding:16px;padding-top:4px">
+            <div style="background:#1a1e26;border-radius:12px;padding:16px;border:1px solid #2a3140">
+              <div style="color:#f5f7fa;font-size:16px;font-weight:600">Sample — Twinkle Variation</div>
+              <div style="color:#8a93a3;font-size:13px;margin-top:4px">120 bpm · 7/18/2026</div>
+            </div>
+            <div style="background:#1a1e26;border-radius:12px;padding:16px;border:1px solid #2a3140">
+              <div style="color:#f5f7fa;font-size:16px;font-weight:600">Rode Etude No. 9</div>
+              <div style="color:#8a93a3;font-size:13px;margin-top:4px">96 bpm · 7/15/2026</div>
+            </div>
+            <div style="background:#1a1e26;border-radius:12px;padding:16px;border:1px solid #2a3140">
+              <div style="color:#f5f7fa;font-size:16px;font-weight:600">Untitled score</div>
+              <div style="color:#8a93a3;font-size:13px;margin-top:4px">7/12/2026</div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.5)">scan.tsx — camera</span>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" title="Scan sheet music" hint-size="410px,880px">
+        <div style="display:flex;flex-direction:column;flex:1;height:100%;background:#0f1115;position:relative;box-sizing:border-box">
+          <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#15181f,#15181f 14px,#191d25 14px,#191d25 28px);display:flex;align-items:center;justify-content:center">
+            <span style="font:12px ui-monospace,Menlo,monospace;color:#5f6a7d">camera preview</span>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:32px;display:flex;flex-direction:column;align-items:center">
+            <div style="color:#f5f7fa;background:#000000aa;padding:8px;border-radius:8px;margin-bottom:20px;font-size:14px">Fill the frame with the sheet music, then capture.</div>
+            <div style="width:74px;height:74px;border-radius:37px;background:#fff;border:5px solid #7aa2ff;box-sizing:border-box"></div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.5)">scan.tsx — review</span>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" title="Scan sheet music" hint-size="410px,880px">
+        <div style="display:flex;flex-direction:column;flex:1;height:100%;background:#0f1115;box-sizing:border-box">
+          <div style="flex:1;background:#000;display:flex;align-items:center;justify-content:center">
+            <div style="width:78%;height:82%;background:repeating-linear-gradient(0deg,#f4f2ec,#f4f2ec 26px,#e9e6dd 26px,#e9e6dd 27px);display:flex;align-items:center;justify-content:center">
+              <span style="font:12px ui-monospace,Menlo,monospace;color:#8a93a3;background:#fffc;padding:4px 8px">captured photo</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;padding:20px">
+            <div style="color:#8a93a3;font-size:13px">Project name</div>
+            <div style="background:#1a1e26;border:1px solid #2a3140;border-radius:10px;padding:14px;color:#5f6a7d;font-size:16px">e.g. Rode Etude No. 9</div>
+            <div style="display:flex;gap:12px;margin-top:4px">
+              <div style="flex:1;background:#1a1e26;border:1px solid #2a3140;padding:14px 0;border-radius:10px;text-align:center;color:#f5f7fa;font-weight:700;font-size:15px">Retake</div>
+              <div style="flex:1;background:#7aa2ff;padding:14px 0;border-radius:10px;text-align:center;color:#0f1115;font-weight:700;font-size:15px">Scan</div>
+            </div>
+            <div style="color:#5f6a7d;font-size:12px;margin-top:4px">Tip: fill the frame, hold steady, good light.</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.5)">score/[id].tsx + ScorePlayer.tsx</span>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" title="Score" hint-size="410px,880px">
+        <div style="display:flex;flex-direction:column;flex:1;height:100%;background:#0f1115;box-sizing:border-box">
+          <div style="flex:1;background:#ffffff;display:flex;align-items:center;justify-content:center">
+            <div style="width:88%;height:70%;background:repeating-linear-gradient(0deg,#fff,#fff 8px,#d8d5cc 8px,#d8d5cc 9px,#fff 9px,#fff 40px);display:flex;align-items:center;justify-content:center">
+              <span style="font:12px ui-monospace,Menlo,monospace;color:#5f6a7d;background:#fffd;padding:4px 8px">OSMD score render (WebView)</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:16px;background:#0f1115">
+            <div style="background:#7aa2ff;padding:12px 24px;border-radius:10px;color:#0f1115;font-weight:700;font-size:15px">Play</div>
+            <div style="background:#1a1e26;border:1px solid #2a3140;padding:12px 24px;border-radius:10px;color:#f5f7fa;font-weight:700;font-size:15px">1×</div>
+            <div style="margin-left:auto;color:#5f6a7d;font-size:12px">42 notes · 120 bpm</div>
+          </div>
+          <div style="background:#7aa2ff;margin:16px;padding:15px 0;border-radius:12px;text-align:center;color:#0f1115;font-size:16px;font-weight:700">Practice with feedback</div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.5)">practice/[id].tsx — running</span>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" title="Practice" hint-size="410px,880px">
+        <div style="display:flex;flex-direction:column;flex:1;height:100%;background:#0f1115;box-sizing:border-box">
+          <div style="flex:1;background:#ffffff;display:flex;align-items:center;justify-content:center">
+            <div style="width:88%;height:70%;background:repeating-linear-gradient(0deg,#fff,#fff 8px,#d8d5cc 8px,#d8d5cc 9px,#fff 9px,#fff 40px);display:flex;align-items:center;justify-content:center">
+              <span style="font:12px ui-monospace,Menlo,monospace;color:#5f6a7d;background:#fffd;padding:4px 8px">score + follow cursor</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;padding:16px;border-top:1px solid #2a3140">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div style="color:#f5f7fa;font-size:34px;font-weight:800">A4</div>
+              <div style="width:100%;height:10px;background:#1a1e26;border-radius:5px;position:relative">
+                <div style="position:absolute;left:50%;width:2px;height:18px;background:#5f6a7d;top:-4px"></div>
+                <div style="position:absolute;left:58%;width:6px;height:18px;border-radius:3px;top:-4px;margin-left:-3px;background:#5fd08a"></div>
+              </div>
+              <div style="color:#8a93a3;font-size:14px">+8¢</div>
+            </div>
+            <div style="background:#5a2731;padding:15px 0;border-radius:12px;text-align:center;color:#f5f7fa;font-size:16px;font-weight:700">Stop</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.5)">practice/[id].tsx — summary</span>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" title="Practice" hint-size="410px,880px">
+        <div style="display:flex;flex-direction:column;flex:1;height:100%;background:#0f1115;box-sizing:border-box">
+          <div style="flex:1;background:#ffffff;display:flex;align-items:center;justify-content:center">
+            <div style="width:88%;height:70%;background:repeating-linear-gradient(0deg,#fff,#fff 8px,#d8d5cc 8px,#d8d5cc 9px,#fff 9px,#fff 40px);display:flex;align-items:center;justify-content:center">
+              <span style="font:12px ui-monospace,Menlo,monospace;color:#5f6a7d;background:#fffd;padding:4px 8px">score + follow cursor</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;padding:16px;border-top:1px solid #2a3140">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+              <div style="color:#5fd08a;font-size:48px;font-weight:800">86%</div>
+              <div style="color:#f5f7fa;font-size:15px">36/42 notes correct · avg 11¢ off</div>
+              <div style="color:#8a93a3;font-size:13px;margin-bottom:6px">wrong 3 · missed 2 · sharp 1 · flat 0</div>
+              <div style="background:#7aa2ff;padding:15px 0;border-radius:12px;text-align:center;color:#f5f7fa;font-size:16px;font-weight:700;align-self:stretch">Practice again</div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(0,0,0,.5)">settings.tsx</span>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" title="Settings" hint-size="410px,880px">
+        <div style="display:flex;flex-direction:column;flex:1;height:100%;background:#0f1115;box-sizing:border-box">
+          <div style="display:flex;flex-direction:column;gap:12px;padding:24px">
+            <div style="color:#f5f7fa;font-size:16px;font-weight:600">Backend URL</div>
+            <div style="color:#8a93a3;font-size:13px;line-height:19px">The OMR server used for scanning. Paste your ngrok URL (it changes each session), e.g. https://abcd-1234.ngrok-free.app</div>
+            <div style="background:#1a1e26;border:1px solid #2a3140;border-radius:10px;padding:14px;color:#f5f7fa;font-size:15px">https://abcd-1234.ngrok-free.app</div>
+            <div style="display:flex;gap:12px;margin-top:4px">
+              <div style="flex:1;background:#1a1e26;border:1px solid #2a3140;padding:13px 0;border-radius:10px;text-align:center;color:#f5f7fa;font-weight:700;font-size:15px">Test connection</div>
+              <div style="flex:1;background:#7aa2ff;padding:13px 0;border-radius:10px;text-align:center;color:#0f1115;font-weight:700;font-size:15px">Save</div>
+            </div>
+            <div style="color:#5fd08a;font-size:14px;margin-top:6px">✓ Connected — ok</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+</body>
+</html>

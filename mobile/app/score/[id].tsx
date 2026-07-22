@@ -1,12 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import { PillButton, StackHeader } from "@/components/ui";
 import { ScorePlayer } from "@/components/ScorePlayer";
 import { getScore, readMusicXML } from "@/library/repository";
+import { colors, font, spacing } from "@/theme";
 
 export default function ScoreDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
 
   const query = useQuery({
     queryKey: ["score-file", id],
@@ -18,38 +22,41 @@ export default function ScoreDetailScreen() {
     },
   });
 
-  if (query.isLoading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#7aa2ff" />
-      </View>
-    );
-  }
-
-  if (query.isError || !query.data) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.error}>{(query.error as Error)?.message ?? "Could not open score"}</Text>
-      </View>
-    );
-  }
+  const title = query.data?.score.title ?? "Score";
 
   return (
-    <View style={styles.container}>
-      <ScorePlayer musicxml={query.data.musicxml} />
-      <Link href={`/practice/${id}`} asChild>
-        <Pressable style={styles.practice}>
-          <Text style={styles.practiceText}>Practice with feedback</Text>
-        </Pressable>
-      </Link>
-    </View>
+    <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+      <StackHeader backLabel="Library" title={title} onBack={() => router.back()} />
+
+      {query.isLoading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.accent} />
+        </View>
+      ) : query.isError || !query.data ? (
+        <View style={styles.center}>
+          <Text style={styles.error}>
+            {(query.error as Error)?.message ?? "Could not open score"}
+          </Text>
+        </View>
+      ) : (
+        <>
+          <ScorePlayer musicxml={query.data.musicxml} />
+          <View style={styles.ctaWrap}>
+            <PillButton
+              label="Practice with feedback"
+              variant="dark"
+              onPress={() => router.push(`/practice/${id}`)}
+            />
+          </View>
+        </>
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0f1115" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#0f1115" },
-  error: { color: "#ff6b81", fontSize: 15, padding: 24, textAlign: "center" },
-  practice: { backgroundColor: "#7aa2ff", margin: 16, paddingVertical: 15, borderRadius: 12, alignItems: "center" },
-  practiceText: { color: "#0f1115", fontSize: 16, fontWeight: "700" },
+  safe: { flex: 1, backgroundColor: colors.bg },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.bg },
+  error: { fontFamily: font.regular, fontSize: 15, color: colors.wrong, padding: 24, textAlign: "center" },
+  ctaWrap: { paddingHorizontal: spacing.screenX, paddingBottom: 18, backgroundColor: colors.bg },
 });

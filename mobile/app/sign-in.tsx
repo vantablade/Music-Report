@@ -1,14 +1,11 @@
 import { useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, TextInput, View } from "react-native";
-import { Pressable } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { LogoMark, PillButton } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
+import { colors, font, radius } from "@/theme";
 
-/**
- * Email/password auth. Redirect back to the app is handled by AuthProvider's
- * onAuthStateChange once a session exists.
- */
 export default function SignInScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,9 +36,10 @@ export default function SignInScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.safe}>
       <View style={styles.content}>
-        <Text style={styles.title}>Sheet Music Trainer</Text>
+        <LogoMark size={64} />
+        <Text style={styles.wordmark}>musical</Text>
         <Text style={styles.subtitle}>
           {mode === "signIn" ? "Sign in to your library" : "Create an account"}
         </Text>
@@ -49,7 +47,7 @@ export default function SignInScreen() {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#5f6a7d"
+          placeholderTextColor={colors.muted}
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -58,7 +56,7 @@ export default function SignInScreen() {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#5f6a7d"
+          placeholderTextColor={colors.muted}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -67,15 +65,14 @@ export default function SignInScreen() {
         {error && <Text style={styles.error}>{error}</Text>}
         {notice && <Text style={styles.notice}>{notice}</Text>}
 
-        <Pressable style={[styles.button, busy && styles.busy]} onPress={submit} disabled={busy}>
-          {busy ? (
-            <ActivityIndicator color="#0f1115" />
-          ) : (
-            <Text style={styles.buttonText}>{mode === "signIn" ? "Sign in" : "Sign up"}</Text>
-          )}
-        </Pressable>
+        <PillButton
+          label={mode === "signIn" ? "Sign in" : "Sign up"}
+          busy={busy}
+          onPress={submit}
+          style={styles.cta}
+        />
 
-        <Pressable onPress={() => setMode(mode === "signIn" ? "signUp" : "signIn")}>
+        <Pressable onPress={() => setMode(mode === "signIn" ? "signUp" : "signIn")} hitSlop={8}>
           <Text style={styles.switch}>
             {mode === "signIn" ? "Need an account? Sign up" : "Have an account? Sign in"}
           </Text>
@@ -86,29 +83,34 @@ export default function SignInScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0f1115" },
-  content: { flex: 1, padding: 24, gap: 14, justifyContent: "center" },
-  title: { color: "#f5f7fa", fontSize: 26, fontWeight: "700" },
-  subtitle: { color: "#8a93a3", fontSize: 15, marginBottom: 8 },
+  safe: { flex: 1, backgroundColor: colors.bg },
+  content: { flex: 1, justifyContent: "center", padding: 28, gap: 12 },
+  wordmark: {
+    fontFamily: font.extrabold,
+    fontSize: 34,
+    letterSpacing: -1,
+    color: colors.text,
+    marginTop: 10,
+  },
+  subtitle: { fontFamily: font.regular, fontSize: 15, color: colors.muted, marginBottom: 14 },
   input: {
-    backgroundColor: "#1a1e26",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#2a3140",
-    borderRadius: 10,
-    padding: 14,
-    color: "#f5f7fa",
+    borderColor: colors.border,
+    borderRadius: radius.input,
+    padding: 15,
+    fontFamily: font.regular,
     fontSize: 15,
+    color: colors.text,
   },
-  button: {
-    backgroundColor: "#7aa2ff",
-    paddingVertical: 15,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 4,
+  cta: { paddingVertical: 16, marginTop: 6 },
+  switch: {
+    fontFamily: font.medium,
+    fontSize: 14,
+    color: colors.link,
+    textAlign: "center",
+    marginTop: 8,
   },
-  busy: { opacity: 0.7 },
-  buttonText: { color: "#0f1115", fontSize: 16, fontWeight: "700" },
-  switch: { color: "#7aa2ff", textAlign: "center", marginTop: 12, fontSize: 14 },
-  error: { color: "#ff6b81", fontSize: 14 },
-  notice: { color: "#5fd08a", fontSize: 14 },
+  error: { fontFamily: font.regular, fontSize: 14, color: colors.wrong },
+  notice: { fontFamily: font.regular, fontSize: 14, color: colors.correct },
 });
