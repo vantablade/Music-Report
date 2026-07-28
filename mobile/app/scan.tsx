@@ -1,8 +1,9 @@
-import { CameraView, useCameraPermissions } from "expo-camera";
+import { useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import DocumentScanner, { ScanDocumentResponseStatus } from "react-native-document-scanner-plugin";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { PillButton, StackHeader } from "@/components/ui";
@@ -10,17 +11,15 @@ import { addScore } from "@/library/repository";
 import { useScanPipeline } from "@/scan/useScanPipeline";
 import { colors, font, radius } from "@/theme";
 
-type Stage = "camera" | "review";
-
 export default function ScanScreen() {
+  // expo-camera declares the CAMERA permission, so the native scanner needs it granted at runtime.
   const [permission, requestPermission] = useCameraPermissions();
-  const cameraRef = useRef<CameraView>(null);
   const router = useRouter();
 
-  const [stage, setStage] = useState<Stage>("camera");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [title, setTitle] = useState("");
-  const [capturing, setCapturing] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const launched = useRef(false);
   const saved = useRef(false);
 
   const pipeline = useScanPipeline();
@@ -42,19 +41,36 @@ export default function ScanScreen() {
       });
   }, [pipeline.phase, pipeline.musicxml, title, router]);
 
-  async function capture() {
-    if (!cameraRef.current) return;
-    setCapturing(true);
-    try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
-      if (photo?.uri) {
-        setPhotoUri(photo.uri);
-        setStage("review");
+  // Launch the OS document scanner (auto edge-detection + dewarp). `fromRetake` keeps the
+  // existing photo if the user cancels a re-scan; the initial cancel just exits the screen.
+  const launchScanner = useCallback(
+    async (fromRetake: boolean) => {
+      setScanError(null);
+      try {
+        const { scannedImages, status } = await DocumentScanner.scanDocument({
+          croppedImageQuality: 100,
+          maxNumDocuments: 1,
+        });
+        if (status === ScanDocumentResponseStatus.Success && scannedImages && scannedImages.length > 0) {
+          let uri = scannedImages[0];
+          if (!/^(file|content):\/\//.test(uri)) uri = `file://${uri}`;
+          setPhotoUri(uri);
+        } else if (!fromRetake) {
+          router.back();
+        }
+      } catch (e) {
+        setScanError((e as Error)?.message || "Could not open the scanner.");
       }
-    } finally {
-      setCapturing(false);
-    }
-  }
+    },
+    [router],
+  );
+
+  // Auto-open the scanner once, as soon as we have camera permission.
+  useEffect(() => {
+    if (!permission?.granted || photoUri || pipeline.phase !== "idle" || launched.current) return;
+    launched.current = true;
+    launchScanner(false);
+  }, [permission?.granted, photoUri, pipeline.phase, launchScanner]);
 
   const header = (
     <StackHeader dark backLabel="Back" title="Scan sheet music" onBack={() => router.back()} />
@@ -75,7 +91,7 @@ export default function ScanScreen() {
       <Shell header={header}>
         <View style={styles.centered}>
           <Text style={styles.procTitle}>Camera access needed</Text>
-          <Text style={styles.procSub}>We need the camera to photograph your sheet music.</Text>
+          <Text style={styles.procSub}>We need the camera to scan your sheet music.</Text>
           <PillButton label="Grant permission" onPress={requestPermission} style={styles.permBtn} />
         </View>
       </Shell>
@@ -97,7 +113,6 @@ export default function ScanScreen() {
                 onPress={() => {
                   pipeline.reset();
                   saved.current = false;
-                  setStage("review");
                 }}
               />
               <Pressable onPress={() => router.push("/settings")} hitSlop={8}>
@@ -119,7 +134,7 @@ export default function ScanScreen() {
   }
 
   /* ---- review + name ---- */
-  if (stage === "review" && photoUri) {
+  if (photoUri) {
     return (
       <Shell header={header}>
         <View style={styles.reviewPhotoWrap}>
@@ -140,7 +155,7 @@ export default function ScanScreen() {
               label="Retake"
               variant="secondary"
               style={styles.sheetBtn}
-              onPress={() => setStage("camera")}
+              onPress={() => launchScanner(true)}
             />
             <PillButton
               label="Scan"
@@ -155,20 +170,23 @@ export default function ScanScreen() {
     );
   }
 
-  /* ---- camera ---- */
+  /* ---- launcher (scanner opening / cancelled / errored) ---- */
   return (
     <Shell header={header}>
-      <View style={styles.cameraWrap}>
-        <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
-        <View style={styles.frameGuide} pointerEvents="none" />
-        <View style={styles.cameraBottom}>
-          <Text style={styles.hintPill}>Fill the frame · hold steady · good light</Text>
-          <Pressable
-            onPress={capture}
-            disabled={capturing}
-            style={({ pressed }) => [styles.shutter, (pressed || capturing) && { opacity: 0.85 }]}
-          />
-        </View>
+      <View style={styles.centered}>
+        {scanError ? (
+          <>
+            <Text style={[styles.procTitle, { color: colors.wrong }]}>Scanner error</Text>
+            <Text style={styles.procSub}>{scanError}</Text>
+            <PillButton label="Open scanner" style={styles.permBtn} onPress={() => launchScanner(false)} />
+          </>
+        ) : (
+          <>
+            <ActivityIndicator size="large" color={colors.accent} />
+            <Text style={styles.procTitle}>Opening scanner…</Text>
+            <Text style={styles.procSub}>Line up the sheet music — the edges are detected automatically.</Text>
+          </>
+        )}
       </View>
     </Shell>
   );
@@ -197,37 +215,6 @@ const styles = StyleSheet.create({
   },
   permBtn: { alignSelf: "stretch", marginTop: 4 },
   darkLink: { fontFamily: font.semibold, fontSize: 14, color: colors.accent, marginTop: 4 },
-  // camera
-  cameraWrap: { flex: 1, position: "relative" },
-  frameGuide: {
-    position: "absolute",
-    top: 56,
-    left: 28,
-    right: 28,
-    bottom: 170,
-    borderWidth: 2,
-    borderColor: "rgba(255,214,10,0.85)",
-    borderRadius: radius.row,
-  },
-  cameraBottom: { position: "absolute", left: 0, right: 0, bottom: 28, alignItems: "center", gap: 18 },
-  hintPill: {
-    fontFamily: font.regular,
-    fontSize: 13.5,
-    color: colors.onDark,
-    backgroundColor: "rgba(23,23,18,0.72)",
-    paddingVertical: 7,
-    paddingHorizontal: 12,
-    borderRadius: radius.pill,
-    overflow: "hidden",
-  },
-  shutter: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.onDark,
-    borderWidth: 5,
-    borderColor: colors.accent,
-  },
   // review
   reviewPhotoWrap: { flex: 1, paddingVertical: 8, paddingHorizontal: 24 },
   reviewPhoto: { flex: 1, borderRadius: 10 },
