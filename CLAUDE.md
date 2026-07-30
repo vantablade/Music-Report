@@ -85,7 +85,7 @@ npx expo start --dev-client  # JS-only iteration against an installed dev client
 **Backend** (from `backend/`):
 
 ```powershell
-./run-local.ps1              # sets HOMR_BIN from omr-eval venv, uvicorn on 0.0.0.0:8000
+./run-local.ps1              # runs uvicorn on 0.0.0.0:8000 from omr-eval/.venv-signed
 # health: http://localhost:8000/health ; docs: /docs
 ```
 
@@ -129,3 +129,10 @@ adb push app/build/outputs/apk/release/app-release.apk /sdcard/Download/
   `npx expo prebuild -p ios` when iOS work starts.
 - **Auth is bypassable** in dev via `EXPO_PUBLIC_DEV_NO_AUTH=true` (in `mobile/.env`), so you
   can test library/scan/playback/feedback without Supabase.
+- **Smart App Control blocks uv-managed Python.** This machine runs SAC enforced, which blocks
+  unsigned `.pyd` files (`_ssl`, `_lzma`, …) in uv's Astral-built Python — so uvicorn and homr
+  won't start there, and it recurs after every reboot. The backend therefore runs on
+  `omr-eval/.venv-signed`, a venv built on a SAC-trusted **signed python.org 3.12**. If the
+  backend dies with "An Application Control policy has blocked this file", rebuild that venv
+  from a signed Python (`python.org`/Microsoft Store), not a uv-managed one. Diagnose with the
+  `Microsoft-Windows-CodeIntegrity/Operational` event log (IDs 3033/3077).
