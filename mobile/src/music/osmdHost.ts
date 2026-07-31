@@ -28,7 +28,7 @@ export function buildOsmdHtml(): string {
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <style>
   html, body { margin: 0; padding: 0; background: #ffffff; }
-  #osmd { padding: 8px; }
+  #osmd { padding: 16px 14px; }
   #err { color: #b00020; font: 14px sans-serif; padding: 16px; display: none; }
 </style>
 </head>
@@ -151,9 +151,21 @@ export function buildOsmdHtml(): string {
             if (!osmd) {
               if (!window.opensheetmusicdisplay) { showError("Notation engine failed to load"); return; }
               osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmd", {
-                autoResize: true, drawingParameters: "compacttight", followCursor: true,
+                autoResize: true, drawingParameters: "default", followCursor: true,
                 cursorsOptions: [{ type: 0, color: "#FFD60A", alpha: 0.45, follow: true }],
               });
+              // Sheet-music look: keep default's spacious engraving but drop the header cruft.
+              // The OCR title is garbage (the app header already shows the real name) and there's
+              // a single part, so its name/abbreviation only wastes horizontal space.
+              var r = osmd.EngravingRules;
+              if (r) {
+                r.RenderTitle = false;
+                r.RenderSubtitle = false;
+                r.RenderComposer = false;
+                r.RenderLyricist = false;
+                r.RenderPartNames = false;
+                r.RenderPartAbbreviations = false;
+              }
             }
             render(msg.musicxml).catch(function (e) { showError("Could not render score: " + e); });
             break;
