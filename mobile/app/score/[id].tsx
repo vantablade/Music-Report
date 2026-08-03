@@ -43,9 +43,9 @@ export default function ScoreDetailScreen() {
           <ScorePlayer musicxml={query.data.musicxml} />
           <View style={styles.ctaWrap}>
             <PillButton
-              label="Practice with feedback"
+              label="Record & get feedback"
               variant="dark"
-              onPress={() => router.push(`/practice/${id}`)}
+              onPress={() => router.push(`/record/${id}`)}
             />
           </View>
         </>
