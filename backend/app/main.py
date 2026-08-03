@@ -1,15 +1,15 @@
-"""Sheet Music Trainer — OMR backend (homr).
+"""Sheet Music Trainer backend.
 
-A focused service: receive a sheet-music image, run EXIF-normalize -> homr -> auto-beam, and
-return MusicXML. No auth/DB here — the mobile app persists results in its own local library;
-auth/cloud storage come later.
+Two focused services, no auth/DB (the mobile app owns the library):
+  - /scan     image -> EXIF-normalize -> homr -> auto-beam -> MusicXML
+  - /analyze  recording + reference MusicXML -> pitch/rhythm/dynamics feedback report
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import health, scan
+from app.routers import analyze, health, scan
 
-app = FastAPI(title="Sheet Music Trainer OMR API", version="0.1.0")
+app = FastAPI(title="Sheet Music Trainer API", version="0.2.0")
 
 # Local dev: the phone connects from another device (LAN/tunnel), so allow all origins.
 app.add_middleware(
@@ -21,3 +21,4 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(scan.router)
+app.include_router(analyze.router)

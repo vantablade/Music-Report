@@ -1,8 +1,8 @@
-"""In-process async job store for OMR scans.
+"""In-process async job store for slow work (OMR scans, performance analysis).
 
-OMR takes ~30-60s, so scans run in a background thread and the client polls. This deliberately
-avoids Celery/Redis — a single local backend doesn't need them. Jobs live in memory (lost on
-restart), which is fine: the mobile app persists the resulting MusicXML in its own library.
+Work runs in a background thread; the client polls. Deliberately no Celery/Redis — a single
+local backend doesn't need them. Jobs live in memory (lost on restart), which is fine: the
+mobile app persists the meaningful results in its own library.
 """
 from __future__ import annotations
 
@@ -11,27 +11,27 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable
 
-# Cap concurrent OMR runs (each loads ONNX models + is CPU-heavy).
+# Cap concurrent runs (OMR loads ONNX models; pyin is CPU-heavy).
 _executor = ThreadPoolExecutor(max_workers=2)
 _jobs: dict[str, dict[str, Any]] = {}
 _lock = threading.Lock()
 
 
-def create_job(title: str | None) -> str:
+def create_job(meta: dict[str, Any] | None = None) -> str:
     job_id = uuid.uuid4().hex
     with _lock:
-        _jobs[job_id] = {"status": "processing", "title": title, "musicxml": None, "error": None}
+        _jobs[job_id] = {"status": "processing", "result": None, "error": None, "meta": meta or {}}
     return job_id
 
 
-def submit(job_id: str, work: Callable[[], bytes]) -> None:
-    """Run `work` (returns MusicXML bytes) in the background and record the outcome."""
+def submit(job_id: str, work: Callable[[], Any]) -> None:
+    """Run `work` (returns a JSON-serialisable result) in the background; record the outcome."""
 
     def _run() -> None:
         try:
-            musicxml = work()
+            result = work()
             with _lock:
-                _jobs[job_id].update(status="ready", musicxml=musicxml.decode("utf-8"))
+                _jobs[job_id].update(status="ready", result=result)
         except Exception as exc:  # noqa: BLE001 - surface any failure to the client
             with _lock:
                 _jobs[job_id].update(status="failed", error=str(exc))

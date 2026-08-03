@@ -1,7 +1,7 @@
 [project]
-name = "sheet-music-trainer-omr"
-version = "0.1.0"
-description = "OMR backend for Sheet Music Trainer (homr → MusicXML)"
+name = "sheet-music-trainer-backend"
+version = "0.2.0"
+description = "Backend for Sheet Music Trainer: OMR (homr → MusicXML) + performance analysis"
 requires-python = ">=3.10,<3.13"
 dependencies = [
     "fastapi>=0.111",
@@ -10,6 +10,9 @@ dependencies = [
     "pillow>=10.0",
     "homr>=0.7.0",
     "music21>=9.1",
+    # Performance analysis (/analyze): pitch tracking + audio decode.
+    "librosa>=0.10",
+    "soundfile>=0.12",
 ]
 
 [project.optional-dependencies]

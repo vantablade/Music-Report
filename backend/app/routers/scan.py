@@ -26,8 +26,8 @@ async def create_scan(
     if len(data) > MAX_BYTES:
         raise HTTPException(413, "Image too large")
 
-    job_id = jobs.create_job(title)
-    jobs.submit(job_id, lambda: scan_image(data))
+    job_id = jobs.create_job({"title": title})
+    jobs.submit(job_id, lambda: {"musicxml": scan_image(data).decode("utf-8")})
     return {"job_id": job_id, "status": "processing"}
 
 
@@ -36,9 +36,10 @@ def get_scan(job_id: str) -> dict:
     job = jobs.get_job(job_id)
     if job is None:
         raise HTTPException(404, "Job not found")
+    result = job["result"] or {}
     return {
         "status": job["status"],
-        "title": job["title"],
-        "musicxml": job["musicxml"],
+        "title": job["meta"].get("title"),
+        "musicxml": result.get("musicxml"),
         "error": job["error"],
     }
