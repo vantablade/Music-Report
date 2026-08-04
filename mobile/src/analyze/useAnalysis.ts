@@ -15,10 +15,10 @@ export function useAnalysis() {
   const [error, setError] = useState<string | null>(null);
 
   const submit = useMutation({
-    mutationFn: async (input: { file: AudioFile; musicxml: string }) => {
+    mutationFn: async (input: { file: AudioFile; musicxml: string; transposition?: number }) => {
       setError(null);
       setPhase("uploading");
-      const { job_id } = await createAnalysis(input.file, input.musicxml);
+      const { job_id } = await createAnalysis(input.file, input.musicxml, input.transposition ?? 0);
       setJobId(job_id);
       setPhase("analyzing");
       return job_id;

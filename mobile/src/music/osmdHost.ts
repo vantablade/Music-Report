@@ -40,6 +40,7 @@ export function buildOsmdHtml(): string {
 (function () {
   var osmd = null;
   var timeline = [];
+  var timbre = "piano";    // synth voice, set per instrument on load
   var rate = 1.0;          // playback speed multiplier (uiTempo / scoreTempo)
   var playing = false;
   var startedAt = 0;       // audioContext time when playback started
@@ -64,16 +65,33 @@ export function buildOsmdHtml(): string {
   }
   function freq(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
 
+  function voiceParams(tb) {
+    // Approximate timbres per instrument family (MVP; real samples later).
+    switch (tb) {
+      case "flute":   return { type: "sine",     attack: 0.06, peak: 0.22, sustain: true };
+      case "voice":   return { type: "sine",     attack: 0.05, peak: 0.20, sustain: true };
+      case "strings": return { type: "sawtooth", attack: 0.08, peak: 0.16, sustain: true };
+      case "reed":    return { type: "square",   attack: 0.03, peak: 0.13, sustain: true };
+      case "brass":   return { type: "sawtooth", attack: 0.02, peak: 0.18, sustain: true };
+      default:        return { type: "triangle", attack: 0.01, peak: 0.20, sustain: false }; // piano
+    }
+  }
+
   function playNote(midi, atTime, durSec) {
     if (midi == null) return;
     var ctx = ac();
+    var v = voiceParams(timbre);
     var osc = ctx.createOscillator();
     var gain = ctx.createGain();
-    osc.type = "triangle";
+    osc.type = v.type;
     osc.frequency.value = freq(midi);
     var end = atTime + Math.max(0.05, durSec * 0.95);
     gain.gain.setValueAtTime(0.0001, atTime);
-    gain.gain.exponentialRampToValueAtTime(0.2, atTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(v.peak, atTime + v.attack);
+    if (v.sustain) {
+      var rel = Math.max(atTime + v.attack + 0.02, end - 0.06);
+      gain.gain.setValueAtTime(v.peak, rel);
+    }
     gain.gain.exponentialRampToValueAtTime(0.0001, end);
     osc.connect(gain).connect(ctx.destination);
     osc.start(atTime);
@@ -147,6 +165,7 @@ export function buildOsmdHtml(): string {
         switch (msg.type) {
           case "load":
             timeline = msg.timeline || [];
+            timbre = msg.timbre || "piano";
             startIndex = 0;
             if (!osmd) {
               if (!window.opensheetmusicdisplay) { showError("Notation engine failed to load"); return; }

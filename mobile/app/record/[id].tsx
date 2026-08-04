@@ -10,8 +10,10 @@ import { useMetronome } from "@/audio/useMetronome";
 import { useRecorder } from "@/audio/useRecorder";
 import { ReportView } from "@/components/ReportView";
 import { PillButton, StackHeader } from "@/components/ui";
+import { getInstrumentId } from "@/library/instrument";
 import { saveLastPractice } from "@/library/practiceHistory";
 import { getScore, readMusicXML } from "@/library/repository";
+import { getInstrument } from "@/music/instruments";
 import { parseMusicXML } from "@/music/parseMusicXML";
 import { readBeatsPerBar } from "@/music/timeSignature";
 import { colors, font, radius, spacing } from "@/theme";
@@ -43,6 +45,9 @@ export default function RecordScreen() {
   });
 
   const title = query.data?.score.title ?? "Score";
+
+  const instrument = useQuery({ queryKey: ["instrument", id], queryFn: () => getInstrumentId(id) });
+  const transposition = getInstrument(instrument.data).transposition;
 
   const beatsPerBar = useMemo(
     () => (query.data ? readBeatsPerBar(query.data.musicxml) : 4),
@@ -89,6 +94,7 @@ export default function RecordScreen() {
     analysis.start({
       file: { uri, name: "performance.wav", type: "audio/wav" },
       musicxml: query.data.musicxml,
+      transposition,
     });
   }
 
@@ -100,6 +106,7 @@ export default function RecordScreen() {
     analysis.start({
       file: { uri: a.uri, name: a.name ?? "upload", type: a.mimeType ?? "audio/*" },
       musicxml: query.data.musicxml,
+      transposition,
     });
   }
 

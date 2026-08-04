@@ -70,3 +70,14 @@ def test_synth_wrong_note_is_flagged(tmp_path):
     report = analyze_performance(wav, SCALE_XML)
     # The substituted note should show up as a wrong pitch, not a perfect run.
     assert report["pitch"]["accuracy"] < 1.0
+
+
+def test_transposition_realigns_transposing_instrument(tmp_path):
+    # A Bb instrument reading the written C scale sounds a whole tone lower.
+    sounding = [m - 2 for m in SCALE_MIDIS]
+    wav = str(tmp_path / "bb.wav")
+    _synth_wav(sounding, wav)
+    without = analyze_performance(wav, SCALE_XML, 0)
+    corrected = analyze_performance(wav, SCALE_XML, 2)
+    assert corrected["pitch"]["accuracy"] > without["pitch"]["accuracy"]
+    assert corrected["pitch"]["accuracy"] >= 0.75

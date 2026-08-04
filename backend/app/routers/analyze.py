@@ -25,6 +25,7 @@ MAX_BYTES = 40 * 1024 * 1024  # ~40 MB — a few minutes of mono WAV
 async def create_analysis(
     audio: UploadFile = File(...),
     musicxml: str = Form(...),
+    transposition: int = Form(0),
 ) -> dict:
     data = await audio.read()
     if not data:
@@ -43,7 +44,7 @@ async def create_analysis(
 
     def work() -> dict:
         try:
-            return analyze_performance(path, ref_bytes)
+            return analyze_performance(path, ref_bytes, transposition)
         finally:
             try:
                 os.unlink(path)

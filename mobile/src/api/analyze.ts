@@ -39,11 +39,16 @@ export interface AudioFile {
   type: string;
 }
 
-export async function createAnalysis(file: AudioFile, musicxml: string): Promise<{ job_id: string }> {
+export async function createAnalysis(
+  file: AudioFile,
+  musicxml: string,
+  transposition = 0,
+): Promise<{ job_id: string }> {
   const base = await getBackendUrl();
   const form = new FormData();
   form.append("audio", { uri: file.uri, name: file.name, type: file.type } as unknown as Blob);
   form.append("musicxml", musicxml);
+  form.append("transposition", String(transposition));
 
   const res = await fetch(`${base}/analyze`, { method: "POST", body: form });
   if (!res.ok) {

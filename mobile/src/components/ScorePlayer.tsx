@@ -21,6 +21,8 @@ interface Props {
   cursorIndex?: number;
   /** Follow mode: tint the cursor by comparison result. */
   feedbackStatus?: "correct" | "wrong" | "near" | null;
+  /** Synth voice for playback (see instruments.ts). */
+  timbre?: string;
 }
 
 const TEMPO_STEPS = [0.5, 0.75, 1.0];
@@ -32,6 +34,7 @@ export function ScorePlayer({
   mode = "play",
   cursorIndex,
   feedbackStatus,
+  timbre,
 }: Props) {
   const webRef = useRef<WebView>(null);
   const [ready, setReady] = useState(false);
@@ -58,7 +61,7 @@ export function ScorePlayer({
     switch (evt.type) {
       case "boot":
         // Host script is up; load the score.
-        send({ type: "load", musicxml, timeline: timeline.notes });
+        send({ type: "load", musicxml, timeline: timeline.notes, timbre });
         break;
       case "ready":
         setReady(true);
