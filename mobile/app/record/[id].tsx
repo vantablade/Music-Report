@@ -1,28 +1,36 @@
 import { useQuery } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAnalysis } from "@/analyze/useAnalysis";
+import { useMetronome } from "@/audio/useMetronome";
 import { useRecorder } from "@/audio/useRecorder";
 import { ReportView } from "@/components/ReportView";
 import { PillButton, StackHeader } from "@/components/ui";
 import { saveLastPractice } from "@/library/practiceHistory";
 import { getScore, readMusicXML } from "@/library/repository";
+import { parseMusicXML } from "@/music/parseMusicXML";
+import { readBeatsPerBar } from "@/music/timeSignature";
 import { colors, font, radius, spacing } from "@/theme";
 
 function fmtTime(s: number): string {
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 }
 
+const clampTempo = (n: number) => Math.max(40, Math.min(208, n));
+
 export default function RecordScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const recorder = useRecorder();
   const analysis = useAnalysis();
+  const metronome = useMetronome();
   const saved = useRef(false);
+  const [countingIn, setCountingIn] = useState(false);
+  const [tempo, setTempo] = useState<number | null>(null);
 
   const query = useQuery({
     queryKey: ["score-file", id],
@@ -36,6 +44,21 @@ export default function RecordScreen() {
 
   const title = query.data?.score.title ?? "Score";
 
+  const beatsPerBar = useMemo(
+    () => (query.data ? readBeatsPerBar(query.data.musicxml) : 4),
+    [query.data],
+  );
+  const scoreTempo = useMemo(
+    () => (query.data ? Math.round(parseMusicXML(query.data.musicxml).tempoBpm) : 100),
+    [query.data],
+  );
+  const bpm = tempo ?? scoreTempo;
+
+  // Default the count-in tempo to the score's own tempo once it loads.
+  useEffect(() => {
+    if (tempo === null && query.data) setTempo(clampTempo(scoreTempo));
+  }, [tempo, query.data, scoreTempo]);
+
   // Record the overall score for the Home "continue practicing" card.
   useEffect(() => {
     if (analysis.phase !== "ready" || !analysis.report || saved.current) return;
@@ -47,6 +70,18 @@ export default function RecordScreen() {
       at: new Date().toISOString(),
     }).catch(() => {});
   }, [analysis.phase, analysis.report, id, title]);
+
+  async function onRecord() {
+    // Count in on the time signature so the player knows when to start; the mic isn't live yet,
+    // so the count-in clicks are never part of the recording.
+    setCountingIn(true);
+    try {
+      await metronome.runCountIn(bpm, beatsPerBar);
+    } finally {
+      setCountingIn(false);
+    }
+    recorder.start();
+  }
 
   async function onStopRecording() {
     const uri = await recorder.stop();
@@ -147,6 +182,18 @@ export default function RecordScreen() {
     );
   }
 
+  if (countingIn) {
+    return (
+      <Shell header={header}>
+        <Center>
+          <Text style={styles.countLabel}>Get ready…</Text>
+          <Text style={styles.countNum}>{metronome.beat > 0 ? metronome.beat : ""}</Text>
+          <Text style={styles.hint}>Start playing on the next downbeat.</Text>
+        </Center>
+      </Shell>
+    );
+  }
+
   // idle: record or upload
   return (
     <Shell header={header}>
@@ -168,8 +215,20 @@ export default function RecordScreen() {
               Record yourself playing “{title}”, or upload a recording — you&apos;ll get pitch,
               rhythm and dynamics feedback.
             </Text>
+            <View style={styles.tempoRow}>
+              <Pressable onPress={() => setTempo(clampTempo(bpm - 4))} style={styles.tempoBtn} hitSlop={6}>
+                <Text style={styles.tempoBtnTxt}>−</Text>
+              </Pressable>
+              <View style={styles.tempoMid}>
+                <Text style={styles.tempoVal}>{bpm}</Text>
+                <Text style={styles.tempoUnit}>BPM · {beatsPerBar}-beat count-in</Text>
+              </View>
+              <Pressable onPress={() => setTempo(clampTempo(bpm + 4))} style={styles.tempoBtn} hitSlop={6}>
+                <Text style={styles.tempoBtnTxt}>+</Text>
+              </Pressable>
+            </View>
             <Pressable
-              onPress={recorder.start}
+              onPress={onRecord}
               style={({ pressed }) => [styles.recBtn, pressed && { opacity: 0.85 }]}
             >
               <View style={styles.recDot} />
@@ -210,9 +269,27 @@ const styles = StyleSheet.create({
   procSub: { fontFamily: font.regular, fontSize: 13.5, color: colors.muted, textAlign: "center" },
   link: { fontFamily: font.semibold, fontSize: 14, color: colors.link, marginTop: 2 },
   wideBtn: { alignSelf: "stretch", marginTop: 4 },
+  // count-in
+  countLabel: { fontFamily: font.semibold, fontSize: 15, color: colors.muted },
+  countNum: { fontFamily: font.extrabold, fontSize: 88, lineHeight: 96, color: colors.text },
   // idle
   idle: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16, padding: spacing.screenX },
   hint: { fontFamily: font.regular, fontSize: 14.5, color: colors.muted, textAlign: "center", lineHeight: 21 },
+  tempoRow: { flexDirection: "row", alignItems: "center", gap: 16, marginTop: 4 },
+  tempoBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tempoBtnTxt: { fontFamily: font.bold, fontSize: 22, color: colors.text },
+  tempoMid: { alignItems: "center", minWidth: 130 },
+  tempoVal: { fontFamily: font.extrabold, fontSize: 30, color: colors.text },
+  tempoUnit: { fontFamily: font.regular, fontSize: 12, color: colors.muted, marginTop: 1 },
   recBtn: {
     width: 96,
     height: 96,
