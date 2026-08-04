@@ -45,6 +45,7 @@ function RootNavigator() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="sign-in" />
       <Stack.Screen name="scan" />
+      <Stack.Screen name="metronome" />
       <Stack.Screen name="score/[id]" />
       <Stack.Screen name="record/[id]" />
       <Stack.Screen name="practice/[id]" />

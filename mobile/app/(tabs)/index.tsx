@@ -100,6 +100,9 @@ export default function HomeScreen() {
           <QuickAction label="Sample" disabled={busy} onPress={() => sample.mutate()}>
             <Text style={[styles.quickGlyph, { fontSize: 15 }]}>♫</Text>
           </QuickAction>
+          <QuickAction label="Metronome" onPress={() => router.push("/metronome")}>
+            <Text style={[styles.quickGlyph, { fontSize: 18 }]}>▚</Text>
+          </QuickAction>
         </View>
 
         {/* Recent */}
